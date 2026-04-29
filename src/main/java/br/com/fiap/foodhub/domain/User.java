@@ -27,13 +27,12 @@ public class User {
     private LocalDateTime updatedAt;
     private Address address;
 
-    public User (UserRequest userRequest, Address address) {
+    public User (UserRequest userRequest) {
         this.fullname = userRequest.fullname();
         this.email = userRequest.email();
         this.passwordHash = userRequest.password();
         this.userType = userRequest.userType();
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
-        this.address = address;
     }
 }

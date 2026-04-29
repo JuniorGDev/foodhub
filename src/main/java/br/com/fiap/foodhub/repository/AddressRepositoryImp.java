@@ -19,29 +19,32 @@ public class AddressRepositoryImp implements AddressRepository {
     @Override
     public Optional<Address> findById(Long id) {
         return this.jdbcClient
-                .sql("SELECT id, street, number, city, zip_code AS zipCode FROM address WHERE id = :id")
+                .sql("SELECT id, street, number, city, zip_code AS zipCode, user_id AS userId FROM address WHERE id = :id")
                 .param("id", id)
-                .query((rs, rowNum) -> new Address(rs.getLong("id"), rs.getString("street"), rs.getInt("number"), rs.getString("city"), rs.getString("zipCode")))
+                .query((rs, rowNum) -> new Address(
+                        rs.getLong("id"),
+                        rs.getString("street"),
+                        rs.getInt("number"),
+                        rs.getString("city"),
+                        rs.getString("zipCode"),
+                        rs.getLong("userId")
+                ))
                 .optional();
     }
 
     @Override
-    public Address save(Address address) {
-        Long savedAddress = this.jdbcClient
+    public Integer save(Address address, Long userId) {
+        return this.jdbcClient
                 .sql("INSERT INTO addresses " +
-                        "(street, number, city, zip_code) " +
+                        "(street, number, city, zip_code, user_id) " +
                         "VALUES " +
-                        "(:street, :number, :city, :zipCode) " +
-                        "RETURNING id")
+                        "(:street, :number, :city, :zipCode, :userId) ")
                 .param("street", address.getStreet())
                 .param("number", address.getNumber())
                 .param("city", address.getCity())
                 .param("zipCode", address.getZipCode())
-                .query(Long.class)
-                .single();
-
-        address.setId(savedAddress);
-        return address;
+                .param("userId", userId)
+                .update();
     }
 
     @Override

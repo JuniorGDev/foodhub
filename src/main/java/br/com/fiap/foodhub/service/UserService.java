@@ -1,6 +1,5 @@
 package br.com.fiap.foodhub.service;
 
-import br.com.fiap.foodhub.config.PasswordConfig;
 import br.com.fiap.foodhub.dtos.request.UserRequest;
 import br.com.fiap.foodhub.dtos.request.UserSearchFilter;
 import br.com.fiap.foodhub.dtos.request.UserUpdateRequest;
@@ -35,13 +34,13 @@ public class UserService {
         if (userRepository.existsByEmail(userRequest.email())) {
             throw new EmailAlreadyExistsException(userRequest.email());
         }
-        var address = new Address(userRequest.address());
-        var savedAddress = addressRepository.save(address);
-        var user = new User(userRequest, savedAddress);
         var passwordHash = passwordEncoder.encode(userRequest.password());
+        var user = new User(userRequest);
         user.setPasswordHash(passwordHash);
         var save = userRepository.save(user);
-        Assert.state(save == 1, "User not saved");
+        var address = new Address(userRequest.address());
+        var savedAddress = addressRepository.save(address, save);
+        Assert.state(savedAddress == 1, "Usuário não salvo");
     }
 
     @Transactional
@@ -54,10 +53,14 @@ public class UserService {
 
     @Transactional
     public void deleteById(Long id) {
+        Long addressId = userRepository.findAddressIdByUserId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+
         var save = userRepository.deleteById(id);
         if (save == 0) {
             throw new ResourceNotFoundException("Usuário não encontrado");
         }
+        addressRepository.deleteById(addressId);
     }
 
     @Transactional

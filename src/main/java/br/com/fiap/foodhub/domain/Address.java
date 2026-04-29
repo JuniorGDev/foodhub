@@ -20,6 +20,7 @@ public class Address {
     private int number;
     private String city;
     private String zipCode;
+    private Long userId;
 
     public Address(
             AddressRequest address

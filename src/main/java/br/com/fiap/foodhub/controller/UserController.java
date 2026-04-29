@@ -9,6 +9,9 @@ import br.com.fiap.foodhub.dtos.response.UserResponse;
 import br.com.fiap.foodhub.enums.UserType;
 import br.com.fiap.foodhub.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
@@ -44,10 +47,18 @@ public class UserController {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Operation(
-            summary = "Buscar todos os usuários paginados",
-            description = "Retorna uma lista de todos os usuários paginados",
+            summary = "Buscar usuários paginados",
+            description = "Retorna uma lista paginada de usuários cadastrados.",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Lista de usuários paginados")
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista de usuários retornada com sucesso",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    array = @ArraySchema(schema = @Schema(implementation = UserResponse.class))
+                            )
+                    ),
+                    @ApiResponse(responseCode = "401", description = "Não autenticado", content = @Content)
             },
             security = @SecurityRequirement(name = "bearerAuth")
     )
@@ -61,11 +72,27 @@ public class UserController {
     }
 
     @Operation(
-            summary = "Buscar o usuário por ID",
-            description = "Retorna o usuário com o ID fornecido",
+            summary = "Buscar usuário por ID",
+            description = "Retorna os dados do usuário correspondente ao ID informado.",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Usuário encontrado"),
-                    @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Usuário encontrado",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = UserResponse.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Não autenticado",
+                            content = @Content
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Usuário não encontrado",
+                            content = @Content
+                    )
             },
             security = @SecurityRequirement(name = "bearerAuth")
     )
@@ -78,11 +105,20 @@ public class UserController {
     }
 
     @Operation(
-            summary = "Buscar o(s) usuários por Fullname, Email e UserType",
-            description = "Retorna o(s) usuário(s) com o(s) filtro(s) fornecido(s)",
+            summary = "Pesquisar usuários",
+            description = "Pesquisa usuários por nome completo, e-mail e/ou tipo de usuário.",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Usuário(s) encontrado(s)"),
-                    @ApiResponse(responseCode = "404", description = "Usuário(s) não encontrado(s)")
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Usuários encontrados",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    array = @ArraySchema(schema = @Schema(implementation = UserResponse.class))
+                            )
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Filtros inválidos", content = @Content),
+                    @ApiResponse(responseCode = "401", description = "Não autenticado", content = @Content),
+                    @ApiResponse(responseCode = "404", description = "Usuários não encontrados", content = @Content)
             },
             security = @SecurityRequirement(name = "bearerAuth")
     )
@@ -98,13 +134,28 @@ public class UserController {
     }
 
     @Operation(
-            summary = "Trocar senha do usuário",
-            description = "Atualiza a senha do usuário informado, validando a senha atual antes da alteração.",
+            summary = "Alterar senha do usuário",
+            description = "Atualiza a senha do usuário validando a senha atual.",
             responses = {
-                    @ApiResponse(responseCode = "204", description = "Senha atualizada com sucesso"),
-                    @ApiResponse(responseCode = "400", description = "Dados inválidos"),
-                    @ApiResponse(responseCode = "401", description = "Não autenticado"),
-                    @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "Senha alterada com sucesso"
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Dados inválidos",
+                            content = @Content
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Não autenticado",
+                            content = @Content
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Usuário não encontrado",
+                            content = @Content
+                    )
             },
             security = @SecurityRequirement(name = "bearerAuth")
     )
@@ -118,11 +169,28 @@ public class UserController {
     }
 
     @Operation(
-            summary = "Salvar usuário",
-            description = "Salvar usuário com os devidos dados preenchidos",
+            summary = "Cadastrar usuário",
+            description = "Realiza o cadastro de um novo usuário no sistema.",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Usuário salvo com sucesso"),
-                    @ApiResponse(responseCode = "400", description = "Dados inválidos")
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Usuário cadastrado com sucesso"
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Dados inválidos",
+                            content = @Content
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Não autenticado",
+                            content = @Content
+                    ),
+                    @ApiResponse(
+                            responseCode = "409",
+                            description = "E-mail já cadastrado",
+                            content = @Content
+                    )
             },
             security = @SecurityRequirement(name = "bearerAuth")
     )
@@ -136,10 +204,13 @@ public class UserController {
 
     @Operation(
             summary = "Atualizar usuário",
-            description = "Atualizar dados do usuário por ID",
+            description = "Atualiza os dados cadastrais do usuário informado.",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso"),
-                    @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+                    @ApiResponse(responseCode = "204", description = "Usuário atualizado com sucesso"),
+                    @ApiResponse(responseCode = "400", description = "Dados inválidos", content = @Content),
+                    @ApiResponse(responseCode = "401", description = "Não autenticado", content = @Content),
+                    @ApiResponse(responseCode = "404", description = "Usuário não encontrado", content = @Content),
+                    @ApiResponse(responseCode = "409", description = "E-mail já cadastrado", content = @Content)
             },
             security = @SecurityRequirement(name = "bearerAuth")
     )
@@ -154,10 +225,11 @@ public class UserController {
 
     @Operation(
             summary = "Deletar usuário",
-            description = "Deletar usuário por ID",
+            description = "Remove o usuário informado pelo ID.",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Usuário deletado com sucesso"),
-                    @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+                    @ApiResponse(responseCode = "204", description = "Usuário deletado com sucesso"),
+                    @ApiResponse(responseCode = "401", description = "Não autenticado", content = @Content),
+                    @ApiResponse(responseCode = "404", description = "Usuário não encontrado", content = @Content)
             },
             security = @SecurityRequirement(name = "bearerAuth")
     )

@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface AddressRepository {
     Optional<Address> findById(Long id);
-    Address save(Address address);
+    Integer save(Address address, Long userId);
     Integer update(AddressRequest addressRequest, Long id);
     Integer deleteById(Long id);
 }

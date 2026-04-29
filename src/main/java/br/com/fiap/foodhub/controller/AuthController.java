@@ -4,6 +4,9 @@ import br.com.fiap.foodhub.dtos.request.LoginRequest;
 import br.com.fiap.foodhub.dtos.response.LoginResponse;
 import br.com.fiap.foodhub.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -26,11 +29,29 @@ public class AuthController {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Operation(
-            summary = "Login",
-            description = "Faz o login do usuário",
+            summary = "Autenticar usuário",
+            description = "Realiza autenticação e retorna um token JWT válido.",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Login realizado com sucesso"),
-                    @ApiResponse(responseCode = "401", description = "Credenciais inválidas")
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Autenticação realizada com sucesso",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = LoginResponse.class),
+                                    examples = @ExampleObject(
+                                            value = """
+                                                {
+                                                  "token": "eyJhbGciOiJIUzI1NiJ9..."
+                                                }
+                                                """
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Credenciais inválidas",
+                            content = @Content
+                    )
             }
     )
     @PostMapping("/login")

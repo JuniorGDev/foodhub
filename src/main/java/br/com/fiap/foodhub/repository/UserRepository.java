@@ -17,7 +17,8 @@ public interface UserRepository {
     Optional<UserResponse> findById(Long id);
     Optional<UserCredentials> findCredentialsById(Long id);
     Optional<UserCredentials> findCredentialsByEmail(String email);
-    Integer save(User user);
+    Optional<Long> findAddressIdByUserId(Long userId);
+    Long save(User user);
     Integer update(UserUpdateRequest userUpdateRequest, Long id);
     Integer deleteById(Long id);
     Integer updatePassword(Long id, String newPassword);

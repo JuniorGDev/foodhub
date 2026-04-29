@@ -104,12 +104,26 @@ public class UserRepositoryImp implements UserRepository {
     }
 
     @Override
-    public Integer save(User user) {
+    public Optional<Long> findAddressIdByUserId(Long userId) {
+        return jdbcClient
+                .sql("""
+                    SELECT address_id
+                    FROM users
+                    WHERE id = :id
+                    """)
+                .param("id", userId)
+                .query(Long.class)
+                .optional();
+    }
+
+    @Override
+    public Long save(User user) {
         return this.jdbcClient
                 .sql("INSERT INTO users " +
                         "(fullname, email, password_hash, user_type, created_at, updated_at, address_id) " +
                         "VALUES " +
-                        "(:fullname, :email, :passwordHash, :userType, :createdAt, :updatedAt, :addressId)")
+                        "(:fullname, :email, :passwordHash, :userType, :createdAt, :updatedAt, :addressId) " +
+                        "RETURNING id")
                 .param("fullname", user.getFullname())
                 .param("email", user.getEmail())
                 .param("passwordHash", user.getPasswordHash())
@@ -117,7 +131,8 @@ public class UserRepositoryImp implements UserRepository {
                 .param("createdAt", LocalDateTime.now())
                 .param("updatedAt", LocalDateTime.now())
                 .param("addressId", user.getAddress().getId())
-                .update();
+                .query(Long.class)
+                .single();
     }
 
     @Override

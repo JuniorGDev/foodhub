@@ -4,10 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "Resposta de autenticação")
 public record LoginResponse(
-        @Schema(
-                description = "Token Bearer JWT",
-                example = "eyJhbGciOiJIUzI1NiJ9..."
-        )
+        @Schema(description = "Token Bearer JWT")
         String token
 ) {
 }
