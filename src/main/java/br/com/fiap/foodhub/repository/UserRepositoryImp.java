@@ -42,7 +42,7 @@ public class UserRepositoryImp implements UserRepository {
                 .sql("SELECT u.id, u.fullname, u.email, u.user_type, u.created_at, u.updated_at, " +
                         "a.street, a.number, a.city, a.zip_code AS zipCode " +
                         "FROM users u " +
-                        "JOIN addresses a ON u.address_id = a.id " +
+                        "JOIN addresses a ON u.id = a.user_id " +
                         "LIMIT :size OFFSET :offset")
                 .param("size", size)
                 .param("offset", offset)
