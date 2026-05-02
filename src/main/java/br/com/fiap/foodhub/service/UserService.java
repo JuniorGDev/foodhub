@@ -45,7 +45,12 @@ public class UserService {
 
     @Transactional
     public void update(UserUpdateRequest userUpdateRequest, Long id) {
-        userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+        var currentUser = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+        boolean emailChanged = !userUpdateRequest.email().equalsIgnoreCase(currentUser.email());
+
+        if (emailChanged && userRepository.existsByEmail(userUpdateRequest.email())) {
+            throw new EmailAlreadyExistsException(userUpdateRequest.email());
+        }
         addressRepository.update(userUpdateRequest.address(), id);
         var save = userRepository.update(userUpdateRequest, id);
         Assert.state(save == 1, "Usuário não atualizado");

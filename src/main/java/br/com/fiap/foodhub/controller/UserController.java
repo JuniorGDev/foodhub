@@ -18,6 +18,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -63,12 +65,13 @@ public class UserController {
             security = @SecurityRequirement(name = "bearerAuth")
     )
     @GetMapping
-    public List<UserResponse> findAll(
+    public ResponseEntity<List<UserResponse>> findAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         logger.info("Accessing findAll method");
-        return userService.findAll(page, size);
+        var users = userService.findAll(page, size);
+        return ResponseEntity.ok(users);
     }
 
     @Operation(
@@ -97,11 +100,12 @@ public class UserController {
             security = @SecurityRequirement(name = "bearerAuth")
     )
     @GetMapping("/{id}")
-    public UserResponse findById(
+    public ResponseEntity<UserResponse> findById(
             @Valid @PathVariable Long id
     ) {
         logger.info("Accessing findById method");
-        return userService.findById(id);
+        var user = userService.findById(id);
+        return ResponseEntity.ok(user);
     }
 
     @Operation(
@@ -123,14 +127,15 @@ public class UserController {
             security = @SecurityRequirement(name = "bearerAuth")
     )
     @GetMapping("/search")
-    public List<UserResponse> search(
+    public ResponseEntity<List<UserResponse>> search(
             @RequestParam(required = false) String fullname,
             @RequestParam(required = false) String email,
             @RequestParam(required = false) UserType userType
     ) {
         logger.info("Accessing search method");
         var userSearchFilter = new UserSearchFilter(fullname, email, userType);
-        return userService.search(userSearchFilter);
+        var userSearchFiltered = userService.search(userSearchFilter);
+        return ResponseEntity.ok(userSearchFiltered);
     }
 
     @Operation(
@@ -160,12 +165,14 @@ public class UserController {
             security = @SecurityRequirement(name = "bearerAuth")
     )
     @PatchMapping("/{id}/password")
-    public void updatePassword(
+    public ResponseEntity<Void> updatePassword(
             @Positive @PathVariable Long id,
             @Valid @RequestBody UserCredentialsRequest userCredentialsRequest
     ) {
         logger.info("Accessing updatePassword method");
         userService.updatePassword(id, userCredentialsRequest.currentPassword(), userCredentialsRequest.newPassword());
+        var status = HttpStatus.NO_CONTENT;
+        return ResponseEntity.status(status.value()).build();
     }
 
     @Operation(
@@ -195,11 +202,13 @@ public class UserController {
             security = @SecurityRequirement(name = "bearerAuth")
     )
     @PostMapping
-    public void save(
+    public ResponseEntity<Void> save(
             @Valid @RequestBody UserRequest userRequest
     ) {
         logger.info("Accessing save method");
         userService.save(userRequest);
+        var status = HttpStatus.CREATED;
+        return ResponseEntity.status(status.value()).build();
     }
 
     @Operation(
@@ -215,12 +224,14 @@ public class UserController {
             security = @SecurityRequirement(name = "bearerAuth")
     )
     @PutMapping("/{id}")
-    public void update(
-            @Valid @PathVariable Long id,
+    public ResponseEntity<Void> update(
+            @Positive @PathVariable Long id,
             @Valid @RequestBody UserUpdateRequest userUpdateRequest
     ) {
         logger.info("Accessing update method");
         userService.update(userUpdateRequest, id);
+        var status = HttpStatus.NO_CONTENT;
+        return ResponseEntity.status(status.value()).build();
     }
 
     @Operation(
@@ -234,8 +245,10 @@ public class UserController {
             security = @SecurityRequirement(name = "bearerAuth")
     )
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@Positive @PathVariable Long id) {
         logger.info("Accessing delete method");
         userService.deleteById(id);
+        var status = HttpStatus.NO_CONTENT;
+        return ResponseEntity.status(status.value()).build();
     }
 }

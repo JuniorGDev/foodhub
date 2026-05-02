@@ -74,7 +74,7 @@ public class UserRepositoryImp implements UserRepository {
                 .sql("SELECT u.id, u.fullname, u.email, u.user_type, u.created_at, u.updated_at, " +
                         "a.street, a.number, a.city, a.zip_code AS zipCode " +
                         "FROM users u " +
-                        "JOIN addresses a ON u.address_id = a.id " +
+                        "JOIN addresses a ON u.id = a.user_id " +
                         "WHERE u.id = :id")
                 .param("id", id)
                 .query((rs, rowNum) -> mapUser(rs))
@@ -120,9 +120,9 @@ public class UserRepositoryImp implements UserRepository {
     public Long save(User user) {
         return this.jdbcClient
                 .sql("INSERT INTO users " +
-                        "(fullname, email, password_hash, user_type, created_at, updated_at, address_id) " +
+                        "(fullname, email, password_hash, user_type, created_at, updated_at) " +
                         "VALUES " +
-                        "(:fullname, :email, :passwordHash, :userType, :createdAt, :updatedAt, :addressId) " +
+                        "(:fullname, :email, :passwordHash, :userType, :createdAt, :updatedAt) " +
                         "RETURNING id")
                 .param("fullname", user.getFullname())
                 .param("email", user.getEmail())
@@ -130,7 +130,6 @@ public class UserRepositoryImp implements UserRepository {
                 .param("userType", user.getUserType().name())
                 .param("createdAt", LocalDateTime.now())
                 .param("updatedAt", LocalDateTime.now())
-                .param("addressId", user.getAddress().getId())
                 .query(Long.class)
                 .single();
     }
@@ -209,7 +208,7 @@ public class UserRepositoryImp implements UserRepository {
             a.city,
             a.zip_code AS zipCode
         FROM users u
-        JOIN addresses a ON u.address_id = a.id
+        JOIN addresses a ON u.id = a.user_id
         WHERE 1 = 1
         """;
     }
