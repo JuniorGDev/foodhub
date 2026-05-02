@@ -24,7 +24,7 @@ public class OpenApiConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("FoodHub API")
-                        .version("v0.1")
+                        .version("v0.2")
                         .description("API para gerenciamento de usuários")
                         .license(new License().name("FoodHub License").url("https://github.com/JuniorGDev")));
     }
