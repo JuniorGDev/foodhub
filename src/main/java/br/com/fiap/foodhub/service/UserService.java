@@ -58,14 +58,10 @@ public class UserService {
 
     @Transactional
     public void deleteById(Long id) {
-        Long addressId = userRepository.findAddressIdByUserId(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
-
-        var save = userRepository.deleteById(id);
-        if (save == 0) {
+        var deleted = userRepository.deleteById(id);
+        if (deleted == 0) {
             throw new ResourceNotFoundException("Usuário não encontrado");
         }
-        addressRepository.deleteById(addressId);
     }
 
     @Transactional
