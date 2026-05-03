@@ -50,14 +50,13 @@ public class AddressRepositoryImp implements AddressRepository {
     @Override
     public Integer update(AddressRequest addressRequest, Long id) {
         return this.jdbcClient
-                .sql("UPDATE addresses a " +
+                .sql("UPDATE addresses " +
                         "SET " +
                         "street = :street, " +
                         "number = :number, " +
                         "city = :city, " +
                         "zip_code = :zipCode " +
-                        "FROM users u " +
-                        "WHERE u.id = :userId")
+                        "WHERE user_id = :userId")
                 .param("street", addressRequest.street())
                 .param("number", addressRequest.number())
                 .param("city", addressRequest.city())
