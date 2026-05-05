@@ -48,8 +48,13 @@ public class AuthController {
                             )
                     ),
                     @ApiResponse(
-                            responseCode = "401",
-                            description = "Credenciais inválidas",
+                            responseCode = "404",
+                            description = "E-mail não encontrado",
+                            content = @Content
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Senha inválida",
                             content = @Content
                     )
             }
