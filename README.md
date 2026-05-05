@@ -1055,6 +1055,6 @@ Este projeto foi desenvolvido para fins acadêmicos na FIAP.
 
 ---
 
-**Autor**: [JuniorGDev](https://github.com/JuniorGDev)  
-**Versão**: 0.0.1-SNAPSHOT  
+**Autor**: [JuniorGDev](https://github.com/JuniorGDev) e [WesleySBDev](https://github.com/wesleysbdev)
+**Versão**: 1.0.1-SNAPSHOT  
 **Última Atualização**: Maio 2026
