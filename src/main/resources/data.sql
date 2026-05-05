@@ -39,7 +39,7 @@ SELECT
     WHERE NOT EXISTS (
     SELECT 1
     FROM users
-    WHERE email = 'admin@admin.com'
+    WHERE user_type = 'ADMIN'
 );
 
 INSERT INTO addresses (
@@ -56,7 +56,7 @@ SELECT
     '12345678',
     u.id
 FROM users u
-WHERE u.email = 'admin@admin.com'
+WHERE u.user_type = 'ADMIN'
   AND NOT EXISTS (
     SELECT 1
     FROM addresses a
