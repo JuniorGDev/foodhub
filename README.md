@@ -633,11 +633,11 @@ SELECT COUNT(1) FROM users WHERE LOWER(email) = LOWER(:email)
 
 ### Validações Customizadas
 
-| Validação | Onde | Implementação |
-|-----------|------|---------------|
-| Filtros de busca não vazios | `UserService.search()` | RuntimeException se todos null/blank |
-| Senha atual correta | `UserService.updatePassword()` | Comparação BCrypt |
-| ID positivo | `@Positive @PathVariable` | Spring Validation |
+| Validação | Onde | Implementação        |
+|-----------|------|----------------------|
+| Filtros de busca não vazios | `UserService.search()` | IllegalArgumentException se todos null/blank |
+| Senha atual correta | `UserService.updatePassword()` | Comparação BCrypt    |
+| ID positivo | `@Positive @PathVariable` | Spring Validation    |
 
 ### Tratamento de Exceções
 
@@ -645,8 +645,11 @@ SELECT COUNT(1) FROM users WHERE LOWER(email) = LOWER(:email)
 
 Exceções lançadas:
 - `EmailAlreadyExistsException` → Retorna mensagem com e-mail duplicado
-- `ResourceNotFoundException` → Retorna "Usuário não encontrado"
-- `RuntimeException` → Mensagens variadas ("Invalid credentials", "Senha atual incorreta")
+- `ResourceNotFoundException` → Retorna "Usuário não encontrado" ou "E-mail não encontrado"
+- `BadCredentials` → Retorna "Senha atual incorreta"
+- `IllegalArgumentException` → Retorna "Filtros de busca vazios"
+- `HttpMessageNotReadableException` → Retorna "O corpo da requisição possui campos inválidos ou em formato incorreto."
+- `MethodArgumentNotValidException` → Retorna uma lista de itens com erro. 
 
 ---
 
@@ -908,14 +911,14 @@ O projeto utiliza **testes unitários** com abordagem de stubs manuais para isol
 ### Cenários de Erro
 
 | Teste | Exceção Esperada | Mensagem |
-|-------|-----------------|----------|
-| `shouldThrowExceptionWhenInvalidCredentials` | RuntimeException | "Invalid credentials" |
+|-------|-----------------|----|
+| `shouldThrowExceptionWhenInvalidCredentials` | ResourceNotFoundException | "E-mail não encontrado" |
 | `shouldThrowExceptionWhenUserNotFound` | ResourceNotFoundException | "Usuário não encontrado" |
 | `shouldThrowExceptionWhenCreateUserWithDuplicateEmail` | EmailAlreadyExistsException | Contém e-mail duplicado |
 | `shouldThrowExceptionWhenUpdateNonExistentUser` | ResourceNotFoundException | "Usuário não encontrado" |
 | `shouldThrowExceptionWhenDeleteNonExistentUser` | ResourceNotFoundException | "Usuário não encontrado" |
-| `shouldThrowExceptionWhenSearchWithEmptyFilters` | RuntimeException | "Filtros de busca vazios" |
-| `shouldThrowExceptionWhenUpdatePasswordWithInvalidCurrentPassword` | RuntimeException | "Senha atual incorreta" |
+| `shouldThrowExceptionWhenSearchWithEmptyFilters` | IllegalArgumentException | "Filtros de busca vazios" |
+| `shouldThrowExceptionWhenUpdatePasswordWithInvalidCurrentPassword` | BadCredentialsException | "Senha atual incorreta" |
 
 ### Como Rodar os Testes
 
