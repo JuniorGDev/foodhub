@@ -1,7 +1,5 @@
 package br.com.fiap.foodhub.controller.handlers;
 
-import br.com.fiap.foodhub.dtos.error.ResourceNotFoundResponse;
-import br.com.fiap.foodhub.dtos.error.ValidationErrorResponse;
 import br.com.fiap.foodhub.exceptions.EmailAlreadyExistsException;
 import br.com.fiap.foodhub.exceptions.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -13,26 +11,37 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @ControllerAdvice
 public class ControllerExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ResourceNotFoundResponse> handleResourceNotFoundException(ResourceNotFoundException ex) {
-        var status = HttpStatus.NOT_FOUND;
-        return ResponseEntity.status(status).body(new ResourceNotFoundResponse(ex.getMessage(), status.value()));
+    public ResponseEntity<ProblemDetail> handleResourceNotFoundException(ResourceNotFoundException ex) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        problem.setTitle("Recurso não encontrado");
+        problem.setDetail(ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ValidationErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
-        var status = HttpStatus.BAD_REQUEST;
-        List<String> errors = new ArrayList<>();
-        for (var error: ex.getBindingResult().getFieldErrors()) {
-            errors.add(error.getField() + ": " + error.getDefaultMessage());
-        }
-        return ResponseEntity.status(status).body(new ValidationErrorResponse(errors, status.value()));
+    public ResponseEntity<ProblemDetail> handleMethodArgumentNotValidException(
+            MethodArgumentNotValidException ex
+    ) {
+        List<String> errors = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .toList();
+
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+
+        problem.setTitle("Validation failed");
+        problem.setDetail("Campos inválidos na requisição");
+        problem.setProperty("errors", errors);
+
+        return ResponseEntity.badRequest().body(problem);
     }
 
     @ExceptionHandler(EmailAlreadyExistsException.class)
