@@ -110,7 +110,9 @@ public class UserController {
 
     @Operation(
             summary = "Pesquisar usuários",
-            description = "Pesquisa usuários por nome completo, e-mail e/ou tipo de usuário.",
+            description = "Pesquisa usuários utilizando filtros opcionais. " +
+                    "Os parâmetros podem ser informados individualmente ou em conjunto. " +
+                    "Quando múltiplos filtros são informados, a busca considera todos eles (AND).",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
