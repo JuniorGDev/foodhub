@@ -10,6 +10,7 @@ import br.com.fiap.foodhub.exceptions.EmailAlreadyExistsException;
 import br.com.fiap.foodhub.repository.AddressRepository;
 import br.com.fiap.foodhub.repository.UserRepository;
 import br.com.fiap.foodhub.exceptions.ResourceNotFoundException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,9 +67,11 @@ public class UserService {
 
     @Transactional
     public void updatePassword(Long id, String currentPassword, String newPassword) {
-        var credentials = userRepository.findCredentialsById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-        if (!passwordEncoder.matches(currentPassword, credentials.passwordHash())) {
-            throw new RuntimeException("Senha atual incorreta");
+        var credentials = userRepository.findCredentialsById(id).orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+        var credentialsCheck = passwordEncoder.matches(currentPassword, credentials.passwordHash());
+        System.out.println(credentialsCheck);
+        if (!credentialsCheck) {
+            throw new BadCredentialsException("Senha atual incorreta");
         }
         var newPasswordHash = passwordEncoder.encode(newPassword);
         var save = userRepository.updatePassword(id, newPasswordHash);
@@ -88,7 +91,7 @@ public class UserService {
         boolean hasUserType = userSearchFilter.userType() != null;
 
         if (!hasFullname && !hasEmail && !hasUserType) {
-            throw new RuntimeException("Filtros de busca vazios");
+            throw new IllegalArgumentException("Filtros de busca vazios");
         }
 
         return userRepository.search(userSearchFilter);
