@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -68,7 +69,7 @@ class UserControllerTest {
 
     @Test
     void shouldThrowExceptionWhenSearchWithEmptyFilters() {
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             userController.search(null, null, null);
         });
 
@@ -144,7 +145,7 @@ class UserControllerTest {
     void shouldThrowExceptionWhenUpdatePasswordWithInvalidCurrentPassword() {
         UserCredentialsRequest request = new UserCredentialsRequest("wrongPassword", "newPassword123");
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+        BadCredentialsException exception = assertThrows(BadCredentialsException.class, () -> {
             userController.updatePassword(1L, request);
         });
 
@@ -199,7 +200,7 @@ class UserControllerTest {
             boolean hasUserType = filter.userType() != null;
 
             if (!hasFullname && !hasEmail && !hasUserType) {
-                throw new RuntimeException("Filtros de busca vazios");
+                throw new IllegalArgumentException("Filtros de busca vazios");
             }
 
             return users;
@@ -224,7 +225,7 @@ class UserControllerTest {
         public void updatePassword(Long id, String currentPassword, String newPassword) {
             findById(id);
             if (!"currentPassword123".equals(currentPassword)) {
-                throw new RuntimeException("Senha atual incorreta");
+                throw new BadCredentialsException("Senha atual incorreta");
             }
         }
 
